@@ -3,24 +3,53 @@
 
 alert ("CALCULADORA DE ORÇAMENTO. O OBJETIVO DESTE SISTEMA É CALCULAR O PREÇO QUE UM EMPREENDEDOR PRECISA COBRAR EM UM SERVIÇO.")
 
-let valorDespesas = parseInt(prompt("Digite o valor total das despesas mensais do seu negócio."));
-let valorSalario = parseInt(prompt("Digite o seu salário desejado mensal."));
-let qtdHoras = parseInt(prompt("Digite a quantidade de horas mensais que você deseja trabalhar."));
-
-const valorHora = () => {
-    return (valorDespesas + valorSalario) / qtdHoras;
+//CÁLCULAR O CUSTO HORA DA EMPRESA
+const custoHora = (despesas, salario, horas) => {
+    return (despesas + salario) / horas;
 }
 
-let horasServico = parseInt(prompt(`O valor hora da sua empresa é de ${valorHora()}. Agora digite quantas horas você estima que levará para concluir o serviço.`));
-
-const valorBrutoServico = () => {
-    return valorHora() * horasServico;
+//CALCULAR O VALOR BRUTO DO SERVIÇO
+const valorBrutoServico = (custoHora, horasServico) => {
+    return custoHora * horasServico;
 }
 
-let percentualNegociacao = parseInt(prompt(`O valor bruto do serviço é ${valorBrutoServico()}. Adicione o percentual % de margem de negociação que deseja adicionar no valor final (SEM O CARACTERE %).`));
-
-const valorFinalServico = () => {
-    return ((valorBrutoServico() * percentualNegociacao) / 100) + valorBrutoServico();
+//CALCULAR O VALOR FINAL DO SERVIÇO
+const valorFinalServico = (valorBrutoServico, percentualNegociacao) => {
+    return ((valorBrutoServico * percentualNegociacao) / 100) + valorBrutoServico;
 }
 
-alert(`O valor total do seu orçamento é de R$ ${valorFinalServico()}.`);
+
+//COLETAR INFORMAÇÕES DA EMPRESA
+const valorDespesas = parseInt(prompt("Digite o valor total das despesas mensais do seu negócio."));
+const valorSalario = parseInt(prompt("Digite o seu salário desejado mensal."));
+const qtdHoras = parseInt(prompt("Digite a quantidade de horas mensais que você deseja trabalhar."));
+
+const empresa = {
+    despesasMensais: valorDespesas,
+    salarioMensal: valorSalario,
+    horasMensais: qtdHoras, 
+    custoHora: custoHora(valorDespesas, valorSalario, qtdHoras)
+}
+
+//COLETAR INFORMAÇÕES DO SERVIÇO
+const horasServico = parseInt(prompt(`O valor hora da sua empresa é de ${empresa.custoHora.toFixed(2)}. Agora digite quantas horas você estima que levará para concluir o serviço.`));
+const percentualNegociacao = parseInt(prompt(`Por último, adicione o percentual % de margem de negociação que deseja adicionar no valor final (SEM O CARACTERE %).`));
+
+
+//FUNÇÃO CONSTRUTORA DO OBJETO SERVIÇO
+function criarServico(horas,percentual) {
+    this.horas = horas;
+    this.percentual = percentual;
+    this.totalTaxas = function() {
+        return (horas * empresa.custoHora) * (percentual / 100);
+    }
+    this.valorFinal = function() {
+        return (horas * empresa.custoHora) + this.totalTaxas();
+    }
+}
+
+//CHAMANDO A FUNÇÃO CONSTRUTORA
+const servico = new criarServico(horasServico,percentualNegociacao)
+
+
+alert(`O valor total do seu orçamento é de R$ ${servico.valorFinal().toFixed(2)}.`);
